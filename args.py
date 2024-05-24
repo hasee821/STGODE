@@ -20,5 +20,5 @@ parser.add_argument('--thres1', type=float, default=0.6, help='the threshold for
 parser.add_argument('--thres2', type=float, default=0.5, help='the threshold for the spatial matrix')
 parser.add_argument('--lr', type=float, default=2e-3, help='learning rate')
 
-parser.add_argument('--log', action='store_true', help='if write log to files')
+parser.add_argument('--log', default=1, help='if write log to files')
 args = parser.parse_args()

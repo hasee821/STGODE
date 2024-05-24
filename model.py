@@ -6,7 +6,7 @@ import torch.nn.functional as F
 from odegcn import ODEG
 
 
-class Chomp1d(nn.Module):
+class Chomp1d(nn.Module): #
     """
     extra dimension will be added by padding, remove it
     """
@@ -15,7 +15,7 @@ class Chomp1d(nn.Module):
         self.chomp_size = chomp_size
 
     def forward(self, x):
-        return x[:, :, :, :-self.chomp_size].contiguous()
+        return x[:, :, :, :-self.chomp_size].contiguous() # remove the last chomp_size dimension，contiguous() make sure the tensor is continuous
 
 
 class TemporalConvNet(nn.Module):
@@ -38,7 +38,8 @@ class TemporalConvNet(nn.Module):
             out_channels = num_channels[i]
             padding = (kernel_size - 1) * dilation_size
             self.conv = nn.Conv2d(in_channels, out_channels, (1, kernel_size), dilation=(1, dilation_size), padding=(0, padding))
-            self.conv.weight.data.normal_(0, 0.01)
+
+            self.conv.weight.data.normal_(0, 0.01) #初始化卷积层权重为正态分布
             self.chomp = Chomp1d(padding)
             self.relu = nn.ReLU()
             self.dropout = nn.Dropout(dropout)
@@ -163,7 +164,7 @@ class ODEGCN(nn.Module):
         for blk in self.se_blocks:
             outs.append(blk(x))
         outs = torch.stack(outs)
-        x = torch.max(outs, dim=0)[0]
-        x = x.reshape((x.shape[0], x.shape[1], -1))
+        x = torch.max(outs, dim=0)[0] # max pooling
+        x = x.reshape((x.shape[0], x.shape[1], -1)) # flatten (B, N, T*F)
 
         return self.pred(x)

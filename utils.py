@@ -48,12 +48,13 @@ def read_data(args):
     std_value = std_value.reshape(-1)[0]
 
     if not os.path.exists(f'data/{filename}_dtw_distance.npy'):
-        data_mean = np.mean([data[:, :, 0][24*12*i: 24*12*(i+1)] for i in range(data.shape[0]//(24*12))], axis=0)
-        data_mean = data_mean.squeeze().T 
+        data_mean = np.mean([data[:, :, 0][24*12*i: 24*12*(i+1)] for i in range(data.shape[0]//(24*12))], axis=0) #将数据按天划分对每天同一时间段的数据取平均
+        data_mean = data_mean.squeeze().T   # shape: N * T(24*12)
         dtw_distance = np.zeros((num_node, num_node))
         for i in tqdm(range(num_node)):
             for j in range(i, num_node):
-                dtw_distance[i][j] = fastdtw(data_mean[i], data_mean[j], radius=6)[0]
+                dtw_distance[i][j] = fastdtw(data_mean[i], data_mean[j], radius=6)[0] #计算两个节点对应时间序列的dtw距离
+                
         for i in range(num_node):
             for j in range(i):
                 dtw_distance[i][j] = dtw_distance[j][i]
@@ -85,7 +86,7 @@ def read_data(args):
     # use continuous spatial matrix
     if not os.path.exists(f'data/{filename}_spatial_distance.npy'):
         with open(filepath + file[1], 'r') as fp:
-            dist_matrix = np.zeros((num_node, num_node)) + np.float('inf')
+            dist_matrix = np.zeros((num_node, num_node)) + np.float('inf') #np.float('inf')指的是无穷大
             file = csv.reader(fp)
             for line in file:
                 break
@@ -106,8 +107,8 @@ def read_data(args):
 
     dist_matrix = np.load(f'data/{filename}_spatial_distance.npy')
     # normalization
-    std = np.std(dist_matrix[dist_matrix != np.float('inf')])
-    mean = np.mean(dist_matrix[dist_matrix != np.float('inf')])
+    std = np.std(dist_matrix[dist_matrix !=float('inf')])
+    mean = np.mean(dist_matrix[dist_matrix != float('inf')])
     dist_matrix = (dist_matrix - mean) / std
     sigma = args.sigma2
     sp_matrix = np.exp(- dist_matrix**2 / sigma**2)

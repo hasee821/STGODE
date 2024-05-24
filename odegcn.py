@@ -17,7 +17,7 @@ else:
 # --- x: A tensor with shape [#batches, dims], meaning the value of x at t.
 # Output:
 # --- dx/dt: A tensor with shape [#batches, dims], meaning the derivative of x at t.
-class ODEFunc(nn.Module):
+class ODEFunc(nn.Module):  #重点
 
     def __init__(self, feature_dim, temporal_dim, adj):
         super(ODEFunc, self).__init__()
@@ -25,9 +25,9 @@ class ODEFunc(nn.Module):
         self.x0 = None
         self.alpha = nn.Parameter(0.8 * torch.ones(adj.shape[1]))
         self.beta = 0.6
-        self.w = nn.Parameter(torch.eye(feature_dim))
-        self.d = nn.Parameter(torch.zeros(feature_dim) + 1)
-        self.w2 = nn.Parameter(torch.eye(temporal_dim))
+        self.w = nn.Parameter(torch.eye(feature_dim)) #可看作特征向量矩阵
+        self.d = nn.Parameter(torch.zeros(feature_dim) + 1) # 可看作特征值向量
+        self.w2 = nn.Parameter(torch.eye(temporal_dim))  
         self.d2 = nn.Parameter(torch.zeros(temporal_dim) + 1)
 
     def forward(self, t, x):
@@ -35,8 +35,8 @@ class ODEFunc(nn.Module):
         xa = torch.einsum('ij, kjlm->kilm', self.adj, x)
 
         # ensure the eigenvalues to be less than 1
-        d = torch.clamp(self.d, min=0, max=1)
-        w = torch.mm(self.w * d, torch.t(self.w))
+        d = torch.clamp(self.d, min=0, max=1)  #特征值限制在0-1之间
+        w = torch.mm(self.w * d, torch.t(self.w))  #二维矩阵相乘与matmul相同
         xw = torch.einsum('ijkl, lm->ijkm', x, w)
 
         d2 = torch.clamp(self.d2, min=0, max=1)
@@ -69,6 +69,6 @@ class ODEG(nn.Module):
         self.odeblock = ODEblock(ODEFunc(feature_dim, temporal_dim, adj), t=torch.tensor([0, time]))
 
     def forward(self, x):
-        self.odeblock.set_x0(x)
-        z = self.odeblock(x)
-        return F.relu(z)
+        self.odeblock.set_x0(x) # set x0
+        z = self.odeblock(x)   # solve the ODE
+        return F.relu(z) 
