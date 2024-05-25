@@ -4,6 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from odegcn import ODEG
+from kan_layer import NaiveFourierKANLayer as KANLayer
 
 
 class Chomp1d(nn.Module): #

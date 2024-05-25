@@ -5,7 +5,7 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument('--remote', action='store_true', help='the code run on a server')
 parser.add_argument('--num-gpu', type=int, default=0, help='the number of the gpu to use')
-parser.add_argument('--epochs', type=int, default=200, help='train epochs')
+parser.add_argument('--epochs', type=int, default=80, help='train epochs')
 parser.add_argument('--batch-size', type=int, default=16, help='batch size')
 
 parser.add_argument('--filename', type=str, default='pems04')
@@ -20,5 +20,5 @@ parser.add_argument('--thres1', type=float, default=0.6, help='the threshold for
 parser.add_argument('--thres2', type=float, default=0.5, help='the threshold for the spatial matrix')
 parser.add_argument('--lr', type=float, default=2e-3, help='learning rate')
 
-parser.add_argument('--log', default=1, help='if write log to files')
+parser.add_argument('--log', default=0, help='if write log to files')
 args = parser.parse_args()

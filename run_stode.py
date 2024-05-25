@@ -57,17 +57,17 @@ equation规则
 
 def train(loader, model, optimizer, criterion, device):
     batch_loss = 0
+    accu_step = 4                    # 梯度累积,每4个batch更新一次梯度,减小显存占用，相当于batch_size*4
     for idx, (inputs, targets) in enumerate(tqdm(loader)):
         model.train()
-        optimizer.zero_grad()
-
         inputs = inputs.to(device)
         targets = targets.to(device)
         outputs = model(inputs)
         loss = criterion(outputs, targets)
         loss.backward()
-        optimizer.step()
-
+        if(idx+1) % accu_step == 0:
+            optimizer.step()
+            optimizer.zero_grad()
         batch_loss += loss.detach().cpu().item() 
     return batch_loss / (idx + 1)
 
@@ -134,7 +134,7 @@ def main(args):
     best_valid_rmse = 1000 
     scheduler = StepLR(optimizer, step_size=50, gamma=0.5)
 
-    for epoch in range(1, 1):#args.epochs+1):
+    for epoch in range(1, args.epochs+1):
         print("=====Epoch {}=====".format(epoch))
         print('Training...')
         start_time=time.time()
